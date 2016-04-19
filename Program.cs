@@ -404,7 +404,7 @@ namespace Nautilus
                 case 3:
                     return HitChance.VeryHigh;
             }
-            return HitChance.Medium;
+            return HitChance.High;
         }
 
         private static bool collision;
