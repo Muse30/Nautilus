@@ -43,8 +43,6 @@ namespace Nautilus
 
         public static Menu PredictionMenu { get; private set; }
 
-        public static Menu SkinMenu { get; private set; }
-
         public static AIHeroClient Target = null;
 
         private static Menu nautmenu;
@@ -81,7 +79,10 @@ namespace Nautilus
         private static void Game_OnGameLoad(EventArgs args)
         {
 
-            if (ObjectManager.Player.Hero != Champion.Nautilus) return;
+            if (ObjectManager.Player.BaseSkinName != "Nautilus")
+            {
+                return;
+            }
             foreach (var hero in ObjectManager.Get<AIHeroClient>())
             {
                 if (hero.IsEnemy)
@@ -183,20 +184,6 @@ namespace Nautilus
             MiscMenu.Add("interruptr", new CheckBox("Use R - interrupter"));
 
 
-            SkinMenu = nautmenu.AddSubMenu("Skin", "Skin");
-            SkinMenu.AddGroupLabel("Select your Skin");
-
-            var skin = SkinMenu.Add("SkinID", new Slider("Skin", 8, 0, 8));
-            var SkinID = new[] { "Classic Nautilus", "Abyssal Nautilus", "Subterranean Nautilus", "AstroNautilus", "Warden Nautilus"};
-            skin.DisplayName = SkinID[skin.CurrentValue];
-
-            skin.OnValueChange +=
-                delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-                {
-                    sender.DisplayName = SkinID[changeArgs.NewValue];
-                };
-
-
             DrawMenu = nautmenu.AddSubMenu("Draw");
             DrawMenu.AddGroupLabel("Draw Settings");
             DrawMenu.Add("drawq", new CheckBox("Draw Q"));
@@ -219,7 +206,7 @@ namespace Nautilus
 
             if (DrawMenu["drawe"].Cast<CheckBox>().CurrentValue)
             {
-                Drawing.DrawCircle(Player.Position, E.Range+250, System.Drawing.Color.IndianRed);
+                Drawing.DrawCircle(Player.Position, E.Range + 250, System.Drawing.Color.IndianRed);
             }
 
             if (DrawMenu["drawr"].Cast<CheckBox>().CurrentValue)
@@ -277,13 +264,13 @@ namespace Nautilus
                 Flee();
             }
 
-        
+
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear)) LaneClear();
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear)) JungleClear();
 
             Killsteal();
-            SkinStyle();
+            ;
         }
 
         private static float ComboDamage(Obj_AI_Base hero)
@@ -314,29 +301,6 @@ namespace Nautilus
         }
 
 
-        private static void SkinStyle()
-        {
-            var ID = SkinMenu["SkinID"].DisplayName;
-
-            switch (ID)
-            {
-                case "Classic Nautlius":
-                    Player.SetSkinId(0);
-                    break;
-                case "Abyssal Nautilus":
-                    Player.SetSkinId(1);
-                    break;
-                case "Subterranean Nautilus":
-                    Player.SetSkinId(2);
-                    break;
-                case "AstroNautilus":
-                    Player.SetSkinId(3);
-                    break;
-                case "Warden Nautilus":
-                    Player.SetSkinId(4);
-                    break;              
-            }
-        }
 
 
         private static void Combo()
@@ -382,10 +346,10 @@ namespace Nautilus
                         CastSpell(Q, t, predQ(), ComboMenu["maxGrab"].Cast<Slider>().CurrentValue);
 
                     if (vW && tsQ.IsValidTarget(W.Range))
-                W.Cast();
+                        W.Cast();
 
-            if (vE && tsQ.IsValidTarget(E.Range))
-                E.Cast();
+                    if (vE && tsQ.IsValidTarget(E.Range))
+                        E.Cast();
 
                 }
             }
@@ -404,7 +368,7 @@ namespace Nautilus
                 case 3:
                     return HitChance.VeryHigh;
             }
-            return HitChance.High;
+            return HitChance.Medium;
         }
 
         private static bool collision;
@@ -576,7 +540,7 @@ namespace Nautilus
 
         private static void Flee()
         {
-           EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos, false);
+            EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos, false);
 
             bool vQ = Q.IsReady() && FleeMenu["fleeuseQ"].Cast<CheckBox>().CurrentValue;
             bool vW = W.IsReady() && FleeMenu["fleeuseW"].Cast<CheckBox>().CurrentValue;
@@ -597,17 +561,17 @@ namespace Nautilus
                 W.Cast();
             }
         }
-    
+
 
 
         public static void SetSmiteSlot()
         {
             SpellSlot smiteSlot;
-            if (SmiteBlue.Any(x => Player.InventoryItems.FirstOrDefault(a => a.Id == (ItemId) x) != null))
+            if (SmiteBlue.Any(x => Player.InventoryItems.FirstOrDefault(a => a.Id == (ItemId)x) != null))
                 smiteSlot = Player.GetSpellSlotFromName("s5_summonersmiteplayerganker");
             else if (
                 SmiteRed.Any(
-                    x => Player.InventoryItems.FirstOrDefault(a => a.Id == (ItemId) x) != null))
+                    x => Player.InventoryItems.FirstOrDefault(a => a.Id == (ItemId)x) != null))
                 smiteSlot = Player.GetSpellSlotFromName("s5_summonersmiteduel");
             else
                 smiteSlot = Player.GetSpellSlotFromName("summonersmite");
@@ -654,7 +618,7 @@ namespace Nautilus
                 foreach (
                     var target in
                         EntityManager.Heroes.Enemies
-                            .Where(h => h.IsValidTarget(SmiteSpell.Range) && h.Health <= 20 + 8*Player.Level))
+                            .Where(h => h.IsValidTarget(SmiteSpell.Range) && h.Health <= 20 + 8 * Player.Level))
                 {
                     SmiteSpell.Cast(target);
                     return;
